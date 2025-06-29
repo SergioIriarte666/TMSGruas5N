@@ -1,126 +1,87 @@
-import { supabase } from '@/lib/supabase';
+import { v4 as uuidv4 } from 'uuid';
 import { ServiceInspection } from '@/types';
+import { MOCK_INSPECTIONS } from '@/data/mockData';
+
+// Copia local de los datos para simular una base de datos
+let inspections = [...MOCK_INSPECTIONS];
 
 // Obtener todas las inspecciones
 export const getInspections = async (): Promise<ServiceInspection[]> => {
-  const { data, error } = await supabase
-    .from('inspections')
-    .select('*')
-    .order('created_at', { ascending: false });
-  
-  if (error) {
-    console.error('Error fetching inspections:', error);
-    throw error;
-  }
-  
-  return data as ServiceInspection[];
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 300));
+  return [...inspections];
 };
 
 // Obtener una inspección por ID
 export const getInspectionById = async (id: string): Promise<ServiceInspection | null> => {
-  const { data, error } = await supabase
-    .from('inspections')
-    .select('*')
-    .eq('id', id)
-    .single();
-  
-  if (error) {
-    console.error('Error fetching inspection:', error);
-    throw error;
-  }
-  
-  return data as ServiceInspection;
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 200));
+  const inspection = inspections.find(i => i.id === id);
+  return inspection || null;
 };
 
 // Obtener inspecciones por servicio
 export const getInspectionsByService = async (serviceId: string): Promise<ServiceInspection[]> => {
-  const { data, error } = await supabase
-    .from('inspections')
-    .select('*')
-    .eq('service_id', serviceId)
-    .order('created_at', { ascending: false });
-  
-  if (error) {
-    console.error('Error fetching inspections by service:', error);
-    throw error;
-  }
-  
-  return data as ServiceInspection[];
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 300));
+  return inspections.filter(i => i.service_id === serviceId);
 };
 
 // Crear una nueva inspección
 export const createInspection = async (inspection: Omit<ServiceInspection, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceInspection> => {
-  // Subir fotos a Supabase Storage si es necesario
-  let photosBefore: string[] = [];
-  let photosAfter: string[] = [];
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 500));
   
-  if (inspection.photos_before && inspection.photos_before.length > 0) {
-    // Aquí iría la lógica para subir las fotos a Supabase Storage
-    // Por ahora, simplemente pasamos los nombres de archivo
-    photosBefore = inspection.photos_before;
-  }
+  // En un caso real, aquí se subirían las fotos a un servicio de almacenamiento
+  // y se guardarían las URLs en la base de datos
   
-  if (inspection.photos_after && inspection.photos_after.length > 0) {
-    // Aquí iría la lógica para subir las fotos a Supabase Storage
-    photosAfter = inspection.photos_after;
-  }
+  const newInspection: ServiceInspection = {
+    id: uuidv4(),
+    ...inspection,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
   
-  const { data, error } = await supabase
-    .from('inspections')
-    .insert([{
-      ...inspection,
-      photos_before: photosBefore,
-      photos_after: photosAfter
-    }])
-    .select()
-    .single();
-  
-  if (error) {
-    console.error('Error creating inspection:', error);
-    throw error;
-  }
-  
-  return data as ServiceInspection;
+  inspections.push(newInspection);
+  return newInspection;
 };
 
 // Actualizar una inspección existente
 export const updateInspection = async (id: string, inspection: Partial<ServiceInspection>): Promise<ServiceInspection> => {
-  // Subir fotos a Supabase Storage si es necesario
-  if (inspection.photos_before && typeof inspection.photos_before[0] !== 'string') {
-    // Aquí iría la lógica para subir las fotos a Supabase Storage
-    // Por ahora, simplemente pasamos los nombres de archivo
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  const index = inspections.findIndex(i => i.id === id);
+  if (index === -1) {
+    throw new Error(`Inspección con ID ${id} no encontrada`);
   }
   
-  if (inspection.photos_after && typeof inspection.photos_after[0] !== 'string') {
-    // Aquí iría la lógica para subir las fotos a Supabase Storage
-  }
+  // En un caso real, aquí se subirían las fotos nuevas a un servicio de almacenamiento
+  // y se actualizarían las URLs en la base de datos
   
-  const { data, error } = await supabase
-    .from('inspections')
-    .update(inspection)
-    .eq('id', id)
-    .select()
-    .single();
+  const updatedInspection = {
+    ...inspections[index],
+    ...inspection,
+    updated_at: new Date().toISOString()
+  };
   
-  if (error) {
-    console.error('Error updating inspection:', error);
-    throw error;
-  }
-  
-  return data as ServiceInspection;
+  inspections[index] = updatedInspection;
+  return updatedInspection;
 };
 
 // Eliminar una inspección
 export const deleteInspection = async (id: string): Promise<void> => {
-  const { error } = await supabase
-    .from('inspections')
-    .delete()
-    .eq('id', id);
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 300));
   
-  if (error) {
-    console.error('Error deleting inspection:', error);
-    throw error;
+  const index = inspections.findIndex(i => i.id === id);
+  if (index === -1) {
+    throw new Error(`Inspección con ID ${id} no encontrada`);
   }
+  
+  // En un caso real, aquí se eliminarían las fotos del servicio de almacenamiento
+  
+  inspections.splice(index, 1);
 };
 
 // Completar una inspección (agregar condición después del servicio)
@@ -131,22 +92,26 @@ export const completeInspection = async (
   clientSignatureImage?: string,
   photosAfter?: string[]
 ): Promise<ServiceInspection> => {
-  const { data, error } = await supabase
-    .from('inspections')
-    .update({
-      vehicle_condition_after: vehicleConditionAfter,
-      client_signature_name: clientSignatureName,
-      client_signature_image: clientSignatureImage,
-      photos_after: photosAfter
-    })
-    .eq('id', id)
-    .select()
-    .single();
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 500));
   
-  if (error) {
-    console.error('Error completing inspection:', error);
-    throw error;
+  const index = inspections.findIndex(i => i.id === id);
+  if (index === -1) {
+    throw new Error(`Inspección con ID ${id} no encontrada`);
   }
   
-  return data as ServiceInspection;
+  // En un caso real, aquí se subirían las fotos nuevas a un servicio de almacenamiento
+  // y se actualizarían las URLs en la base de datos
+  
+  const updatedInspection = {
+    ...inspections[index],
+    vehicle_condition_after: vehicleConditionAfter,
+    client_signature_name: clientSignatureName || inspections[index].client_signature_name,
+    client_signature_image: clientSignatureImage || inspections[index].client_signature_image,
+    photos_after: photosAfter || inspections[index].photos_after,
+    updated_at: new Date().toISOString()
+  };
+  
+  inspections[index] = updatedInspection;
+  return updatedInspection;
 };

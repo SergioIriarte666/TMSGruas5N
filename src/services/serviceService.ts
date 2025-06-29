@@ -1,182 +1,147 @@
-import { supabase } from '@/lib/supabase';
+import { v4 as uuidv4 } from 'uuid';
 import { Service } from '@/types';
+import { MOCK_SERVICES } from '@/data/mockData';
+
+// Copia local de los datos para simular una base de datos
+let services = [...MOCK_SERVICES];
 
 // Obtener todos los servicios
 export const getServices = async (): Promise<Service[]> => {
-  const { data, error } = await supabase
-    .from('services')
-    .select('*')
-    .order('created_at', { ascending: false });
-  
-  if (error) {
-    console.error('Error fetching services:', error);
-    throw error;
-  }
-  
-  return data as Service[];
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 300));
+  return [...services];
 };
 
 // Obtener un servicio por ID
 export const getServiceById = async (id: string): Promise<Service | null> => {
-  const { data, error } = await supabase
-    .from('services')
-    .select('*')
-    .eq('id', id)
-    .single();
-  
-  if (error) {
-    console.error('Error fetching service:', error);
-    throw error;
-  }
-  
-  return data as Service;
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 200));
+  const service = services.find(s => s.id === id);
+  return service || null;
 };
 
 // Crear un nuevo servicio
 export const createService = async (service: Omit<Service, 'id' | 'created_at' | 'updated_at'>): Promise<Service> => {
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
   // Generar número de servicio si no se proporciona
-  if (!service.service_number) {
-    const { count } = await supabase
-      .from('services')
-      .select('*', { count: 'exact', head: true });
-    
-    const nextNumber = (count || 0) + 1;
-    service.service_number = `SRV-${new Date().getFullYear()}-${String(nextNumber).padStart(4, '0')}`;
+  let serviceNumber = service.service_number;
+  if (!serviceNumber) {
+    const nextNumber = services.length + 1;
+    serviceNumber = `SRV-${new Date().getFullYear()}-${String(nextNumber).padStart(4, '0')}`;
   }
   
-  const { data, error } = await supabase
-    .from('services')
-    .insert([service])
-    .select()
-    .single();
+  const newService: Service = {
+    id: uuidv4(),
+    service_number: serviceNumber,
+    ...service,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
   
-  if (error) {
-    console.error('Error creating service:', error);
-    throw error;
-  }
-  
-  return data as Service;
+  services.push(newService);
+  return newService;
 };
 
 // Actualizar un servicio existente
 export const updateService = async (id: string, service: Partial<Service>): Promise<Service> => {
-  const { data, error } = await supabase
-    .from('services')
-    .update(service)
-    .eq('id', id)
-    .select()
-    .single();
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 500));
   
-  if (error) {
-    console.error('Error updating service:', error);
-    throw error;
+  const index = services.findIndex(s => s.id === id);
+  if (index === -1) {
+    throw new Error(`Servicio con ID ${id} no encontrado`);
   }
   
-  return data as Service;
+  const updatedService = {
+    ...services[index],
+    ...service,
+    updated_at: new Date().toISOString()
+  };
+  
+  services[index] = updatedService;
+  return updatedService;
 };
 
 // Eliminar un servicio
 export const deleteService = async (id: string): Promise<void> => {
-  const { error } = await supabase
-    .from('services')
-    .delete()
-    .eq('id', id);
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 300));
   
-  if (error) {
-    console.error('Error deleting service:', error);
-    throw error;
+  const index = services.findIndex(s => s.id === id);
+  if (index === -1) {
+    throw new Error(`Servicio con ID ${id} no encontrado`);
   }
+  
+  services.splice(index, 1);
 };
 
 // Buscar servicios por término
 export const searchServices = async (term: string): Promise<Service[]> => {
-  const { data, error } = await supabase
-    .from('services')
-    .select('*')
-    .or(`service_number.ilike.%${term}%,description.ilike.%${term}%,folio.ilike.%${term}%`)
-    .order('created_at', { ascending: false });
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 300));
   
-  if (error) {
-    console.error('Error searching services:', error);
-    throw error;
-  }
-  
-  return data as Service[];
+  const searchTerm = term.toLowerCase();
+  return services.filter(service => 
+    service.service_number.toLowerCase().includes(searchTerm) ||
+    service.description.toLowerCase().includes(searchTerm) ||
+    (service.folio && service.folio.toLowerCase().includes(searchTerm))
+  );
 };
 
 // Obtener servicios por cliente
 export const getServicesByClient = async (clientId: string): Promise<Service[]> => {
-  const { data, error } = await supabase
-    .from('services')
-    .select('*')
-    .eq('client_id', clientId)
-    .order('created_at', { ascending: false });
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 300));
   
-  if (error) {
-    console.error('Error fetching client services:', error);
-    throw error;
-  }
-  
-  return data as Service[];
+  return services.filter(service => service.client_id === clientId);
 };
 
 // Obtener servicios por operador
 export const getServicesByOperator = async (operatorId: string): Promise<Service[]> => {
-  const { data, error } = await supabase
-    .from('services')
-    .select('*')
-    .eq('operator_id', operatorId)
-    .order('created_at', { ascending: false });
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 300));
   
-  if (error) {
-    console.error('Error fetching operator services:', error);
-    throw error;
-  }
-  
-  return data as Service[];
+  return services.filter(service => service.operator_id === operatorId);
 };
 
 // Obtener servicios por estado
 export const getServicesByStatus = async (status: Service['status']): Promise<Service[]> => {
-  const { data, error } = await supabase
-    .from('services')
-    .select('*')
-    .eq('status', status)
-    .order('created_at', { ascending: false });
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 300));
   
-  if (error) {
-    console.error('Error fetching services by status:', error);
-    throw error;
-  }
-  
-  return data as Service[];
+  return services.filter(service => service.status === status);
 };
 
 // Actualizar el estado de un servicio
 export const updateServiceStatus = async (id: string, status: Service['status']): Promise<Service> => {
+  // Simular una llamada asíncrona
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
+  const index = services.findIndex(s => s.id === id);
+  if (index === -1) {
+    throw new Error(`Servicio con ID ${id} no encontrado`);
+  }
+  
   const updates: Partial<Service> = { status };
   
   // Si el estado es 'in_progress', agregar la hora de inicio
-  if (status === 'in_progress') {
+  if (status === 'in_progress' && !services[index].started_time) {
     updates.started_time = new Date().toTimeString().slice(0, 5);
   }
   
   // Si el estado es 'completed', agregar la hora de finalización
-  if (status === 'completed') {
+  if (status === 'completed' && !services[index].completed_time) {
     updates.completed_time = new Date().toTimeString().slice(0, 5);
   }
   
-  const { data, error } = await supabase
-    .from('services')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single();
+  const updatedService = {
+    ...services[index],
+    ...updates,
+    updated_at: new Date().toISOString()
+  };
   
-  if (error) {
-    console.error('Error updating service status:', error);
-    throw error;
-  }
-  
-  return data as Service;
+  services[index] = updatedService;
+  return updatedService;
 };

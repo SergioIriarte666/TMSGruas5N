@@ -1,4 +1,5 @@
-import { Client, Vehicle, TowTruck, Service, DashboardStats, User } from '@/types';
+import { Client, Vehicle, TowTruck, Service, DashboardStats, User, ServiceInspection } from '@/types';
+import { Invoice, InvoiceLineItem, InvoicePayment } from '@/types/billing';
 
 export const MOCK_CLIENTS: Client[] = [
   {
@@ -458,3 +459,213 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
     { operator: { id: '3', name: 'Pedro Conductor', email: 'pedro@tms.com', role: 'operator', created_at: '', updated_at: '' }, services_count: 8, revenue: 895000 }
   ]
 };
+
+// Mock data for inspections
+export const MOCK_INSPECTIONS: ServiceInspection[] = [
+  {
+    id: '1',
+    service_id: '1',
+    vehicle_condition_before: {
+      exterior_damage: [
+        {
+          id: '1',
+          x: 25,
+          y: 30,
+          type: 'scratch',
+          severity: 'minor',
+          description: 'Rayón en puerta delantera izquierda'
+        }
+      ],
+      interior_condition: 'good',
+      fuel_level: 75,
+      mileage: 85000,
+      tire_condition: 'good',
+      notes: 'Vehículo en buen estado general'
+    },
+    vehicle_condition_after: {
+      exterior_damage: [
+        {
+          id: '1',
+          x: 25,
+          y: 30,
+          type: 'scratch',
+          severity: 'minor',
+          description: 'Rayón en puerta delantera izquierda'
+        }
+      ],
+      interior_condition: 'good',
+      fuel_level: 70,
+      tire_condition: 'good'
+    },
+    operator_signature_name: 'Juan Operador',
+    client_signature_name: 'María González',
+    operator_signature_image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAA',
+    client_signature_image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAABB',
+    photos_before: ['photo1.jpg', 'photo2.jpg'],
+    photos_after: ['photo3.jpg', 'photo4.jpg'],
+    inspection_notes: 'Servicio completado sin incidentes',
+    created_at: '2024-01-25T10:30:00Z',
+    updated_at: '2024-01-25T11:45:00Z'
+  },
+  {
+    id: '2',
+    service_id: '2',
+    vehicle_condition_before: {
+      exterior_damage: [],
+      interior_condition: 'excellent',
+      fuel_level: 50,
+      mileage: 45000,
+      tire_condition: 'excellent'
+    },
+    operator_signature_name: 'Pedro Conductor',
+    operator_signature_image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAACC',
+    photos_before: ['photo5.jpg'],
+    photos_after: [],
+    inspection_notes: 'Inspección inicial completada',
+    created_at: '2024-01-25T14:20:00Z',
+    updated_at: '2024-01-25T14:20:00Z'
+  },
+  {
+    id: '3',
+    service_id: '4',
+    vehicle_condition_before: {
+      exterior_damage: [],
+      interior_condition: 'good',
+      fuel_level: 65,
+      mileage: 32500,
+      tire_condition: 'good'
+    },
+    operator_signature_name: 'Juan Operador',
+    operator_signature_image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAADD',
+    photos_before: ['photo6.jpg', 'photo7.jpg'],
+    photos_after: [],
+    inspection_notes: 'Vehículo en buen estado general, sin daños visibles',
+    created_at: '2024-06-28T09:30:00Z',
+    updated_at: '2024-06-28T09:45:00Z'
+  }
+];
+
+// Mock data for invoices
+export const MOCK_INVOICES: Invoice[] = [
+  {
+    id: '1',
+    invoice_number: 'F001-00000001',
+    invoice_type: 'factura',
+    folio: 1,
+    client_id: '1',
+    service_ids: ['1'],
+    issue_date: '2024-01-25',
+    due_date: '2024-02-24',
+    subtotal: 85000,
+    iva_amount: 16150,
+    total_amount: 101150,
+    status: 'issued',
+    payment_status: 'pending',
+    client_rut: '12.345.678-9',
+    client_name: 'María González',
+    client_address: 'Av. Providencia 1234',
+    client_city: 'Santiago',
+    client_region: 'Metropolitana de Santiago',
+    line_items: [
+      {
+        id: '1',
+        description: 'SRV-2024-0001 - Remolque por falla mecánica',
+        quantity: 1,
+        unit_price: 85000,
+        subtotal: 85000,
+        iva_rate: 19,
+        iva_amount: 16150,
+        total: 101150,
+        service_id: '1'
+      }
+    ],
+    payments: [],
+    created_by: 'admin@tmsgruas.cl',
+    created_at: '2024-01-25T10:30:00Z',
+    updated_at: '2024-01-25T10:30:00Z'
+  },
+  {
+    id: '2',
+    invoice_number: 'F001-00000002',
+    invoice_type: 'factura',
+    folio: 2,
+    client_id: '2',
+    service_ids: ['2'],
+    issue_date: '2024-01-24',
+    due_date: '2024-02-23',
+    subtotal: 55000,
+    iva_amount: 10450,
+    total_amount: 65450,
+    status: 'paid',
+    payment_status: 'paid',
+    client_rut: '98.765.432-1',
+    client_name: 'Carlos Rodriguez',
+    client_address: 'Av. Las Condes 2567',
+    client_city: 'Santiago',
+    client_region: 'Metropolitana de Santiago',
+    line_items: [
+      {
+        id: '2',
+        description: 'SRV-2024-0002 - Asistencia por batería descargada',
+        quantity: 1,
+        unit_price: 55000,
+        subtotal: 55000,
+        iva_rate: 19,
+        iva_amount: 10450,
+        total: 65450,
+        service_id: '2'
+      }
+    ],
+    payments: [
+      {
+        id: '1',
+        invoice_id: '2',
+        amount: 65450,
+        payment_date: '2024-01-24',
+        payment_method: 'transfer',
+        reference: 'TRF-123456789',
+        created_at: '2024-01-24T16:00:00Z'
+      }
+    ],
+    created_by: 'admin@tmsgruas.cl',
+    created_at: '2024-01-24T14:30:00Z',
+    updated_at: '2024-01-24T16:00:00Z'
+  },
+  {
+    id: '3',
+    invoice_number: 'F001-00000003',
+    invoice_type: 'factura',
+    folio: 3,
+    client_id: '1',
+    service_ids: ['4'],
+    issue_date: '2024-01-20',
+    due_date: '2024-02-19',
+    subtotal: 75000,
+    iva_amount: 14250,
+    total_amount: 89250,
+    status: 'issued',
+    payment_status: 'pending',
+    client_rut: '12.345.678-9',
+    client_name: 'María González',
+    client_address: 'Av. Providencia 1234',
+    client_city: 'Santiago',
+    client_region: 'Metropolitana de Santiago',
+    line_items: [
+      {
+        id: '3',
+        description: 'SRV-2024-0004 - Remolque por problemas de transmisión',
+        quantity: 1,
+        unit_price: 75000,
+        subtotal: 75000,
+        iva_rate: 19,
+        iva_amount: 14250,
+        total: 89250,
+        service_id: '4'
+      }
+    ],
+    payments: [],
+    created_by: 'admin@tmsgruas.cl',
+    created_at: '2024-01-20T14:30:00Z',
+    updated_at: '2024-01-20T14:30:00Z'
+  }
+];
