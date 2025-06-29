@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'operator' | 'viewer' | 'client';
+  role: 'admin' | 'manager' | 'operator' | 'viewer' | 'client';
   license_number?: string;
   license_expiry?: string;
   emergency_contact?: string;

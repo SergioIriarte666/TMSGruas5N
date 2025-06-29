@@ -37,6 +37,15 @@ const MOCK_USERS: User[] = [
     phone: '+56 9 1234 5678',
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '5',
+    email: 'manager@tmsgruas.com',
+    name: 'Carlos Gerente',
+    role: 'manager',
+    phone: '+54 11 4444-4444',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z'
   }
 ];
 
@@ -82,7 +91,7 @@ export class AuthService {
     const user = this.getCurrentUser();
     if (!user) return false;
 
-    const roleHierarchy = { admin: 3, operator: 2, viewer: 1, client: 1 };
+    const roleHierarchy = { admin: 4, manager: 3, operator: 2, viewer: 1, client: 1 };
     return roleHierarchy[user.role] >= roleHierarchy[requiredRole];
   }
 
@@ -92,6 +101,19 @@ export class AuthService {
 
     // Admin has access to everything
     if (user.role === 'admin') return true;
+
+    // Manager permissions
+    if (user.role === 'manager') {
+      if (resource === 'services' && ['read', 'create', 'update'].includes(action)) return true;
+      if (resource === 'inspections' && ['read', 'create', 'update'].includes(action)) return true;
+      if (resource === 'vehicles' && ['read', 'create', 'update'].includes(action)) return true;
+      if (resource === 'clients' && ['read', 'create', 'update'].includes(action)) return true;
+      if (resource === 'operators' && ['read', 'create'].includes(action)) return true;
+      if (resource === 'tow-trucks' && ['read', 'create', 'update'].includes(action)) return true;
+      if (resource === 'reports' && action === 'read') return true;
+      if (resource === 'billing' && ['read', 'create'].includes(action)) return true;
+      return false;
+    }
 
     // Operator permissions
     if (user.role === 'operator') {

@@ -27,7 +27,7 @@ const operadorSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   email: z.string().email('Email inválido'),
   phone: z.string().min(1, 'El teléfono es requerido'),
-  role: z.enum(['admin', 'operator', 'viewer']),
+  role: z.enum(['admin', 'manager', 'operator', 'viewer']),
   license_number: z.string().optional(),
   license_expiry: z.string().optional(),
   occupational_exam_expiry: z.string().optional(),
@@ -133,6 +133,7 @@ export function OperadorForm({ operador, isOpen, onClose, onSubmit }: OperadorFo
 
   const roleLabels = {
     admin: 'Administrador',
+    manager: 'Gerente',
     operator: 'Operador',
     viewer: 'Supervisor'
   };

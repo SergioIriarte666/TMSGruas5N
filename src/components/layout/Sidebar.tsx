@@ -21,55 +21,55 @@ const navigation = [
     name: 'Dashboard',
     href: '/',
     icon: LayoutDashboard,
-    roles: ['admin', 'operator', 'viewer']
+    roles: ['admin', 'manager', 'operator', 'viewer']
   },
   {
     name: 'Servicios',
     href: '/services',
     icon: ClipboardList,
-    roles: ['admin', 'operator', 'viewer']
+    roles: ['admin', 'manager', 'operator', 'viewer']
   },
   {
     name: 'Facturación',
     href: '/billing',
     icon: Receipt,
-    roles: ['admin', 'viewer']
+    roles: ['admin', 'manager', 'viewer']
   },
   {
     name: 'Calendario',
     href: '/calendar',
     icon: Calendar,
-    roles: ['admin', 'operator', 'viewer']
+    roles: ['admin', 'manager', 'operator', 'viewer']
   },
   {
     name: 'Portal Operador',
     href: '/operator',
     icon: MapPin,
-    roles: ['operator', 'admin']
+    roles: ['operator', 'admin', 'manager']
   },
   {
     name: 'Clientes',
     href: '/clients',
     icon: Users,
-    roles: ['admin', 'viewer']
+    roles: ['admin', 'manager', 'viewer']
   },
   {
     name: 'Grúas',
     href: '/tow-trucks',
     icon: Truck,
-    roles: ['admin', 'viewer']
+    roles: ['admin', 'manager', 'viewer']
   },
   {
     name: 'Operadores',
     href: '/operators',
     icon: UserCheck,
-    roles: ['admin']
+    roles: ['admin', 'manager']
   },
   {
     name: 'Reportes',
     href: '/reports',
     icon: BarChart3,
-    roles: ['admin', 'viewer']
+    roles: ['admin', 'manager', 'viewer']
   },
   {
     name: 'Configuración',

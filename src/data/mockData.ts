@@ -299,6 +299,20 @@ export const MOCK_OPERATORS: ExtendedUser[] = [
     status: 'active',
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-25T09:00:00Z'
+  },
+  {
+    id: '5',
+    email: 'carlos@tmsgruas.com',
+    name: 'Carlos Gerente',
+    role: 'manager',
+    phone: '+54 11 6666-6666',
+    emergency_contact: 'Laura Gerente',
+    emergency_phone: '+54 11 7777-7777',
+    last_login: '2024-01-25T11:00:00Z',
+    services_completed: 0,
+    status: 'active',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-25T11:00:00Z'
   }
 ];
 
