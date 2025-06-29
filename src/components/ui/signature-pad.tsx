@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
-import { Button } from '@/components/ui/button';
+import { Button } from './button';
 import { cn } from '@/lib/utils';
 
 interface SignaturePadProps {
@@ -27,112 +27,172 @@ export function SignaturePad({
   clearButtonLabel = 'Limpiar',
   saveButtonLabel = 'Guardar',
   cancelButtonLabel = 'Cancelar',
-  penColor = 'black',
-  className,
+  penColor = '#000000',
+  className
 }: SignaturePadProps) {
-  const sigCanvas = useRef<SignatureCanvas>(null);
-  const [isEditing, setIsEditing] = useState(!value);
-  const [tempSignature, setTempSignature] = useState<string | null>(null);
+  const signatureRef = useRef<SignatureCanvas>(null);
+  const [isEmpty, setIsEmpty] = useState(true);
+  const [isSigning, setIsSigning] = useState(false);
 
-  const clear = () => {
-    if (sigCanvas.current) {
-      sigCanvas.current.clear();
-      setTempSignature(null);
+  // Cargar firma existente si hay un valor
+  useEffect(() => {
+    if (value && signatureRef.current && !isSigning) {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = signatureRef.current;
+        if (canvas) {
+          canvas.clear();
+          canvas.getCanvas().getContext('2d')?.drawImage(img, 0, 0);
+          setIsEmpty(false);
+        }
+      };
+      img.src = value;
+    }
+  }, [value, isSigning]);
+
+  const handleClear = () => {
+    if (signatureRef.current) {
+      signatureRef.current.clear();
+      setIsEmpty(true);
+      onChange?.('');
     }
   };
 
-  const save = () => {
-    if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
-      const dataUrl = sigCanvas.current.toDataURL('image/png');
-      setTempSignature(dataUrl);
+  const handleSave = () => {
+    if (signatureRef.current && !isEmpty) {
+      const dataUrl = signatureRef.current.toDataURL('image/png');
       onChange?.(dataUrl);
-      setIsEditing(false);
+      setIsSigning(false);
     }
   };
 
-  const cancel = () => {
-    setIsEditing(false);
-    setTempSignature(null);
+  const handleCancel = () => {
+    setIsSigning(false);
+    if (value && signatureRef.current) {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = signatureRef.current;
+        if (canvas) {
+          canvas.clear();
+          canvas.getCanvas().getContext('2d')?.drawImage(img, 0, 0);
+          setIsEmpty(false);
+        }
+      };
+      img.src = value;
+    } else {
+      handleClear();
+    }
   };
 
-  const startEditing = () => {
-    if (!disabled) {
-      setIsEditing(true);
+  const handleBegin = () => {
+    setIsSigning(true);
+    setIsEmpty(false);
+  };
+
+  const handleEnd = () => {
+    if (signatureRef.current) {
+      setIsEmpty(signatureRef.current.isEmpty());
     }
   };
 
   return (
-    <div className={cn("border rounded-md overflow-hidden", className)}>
-      {isEditing ? (
-        <>
-          <div 
-            className="bg-background"
-            style={{ height: `${height}px`, width }}
-          >
-            <SignatureCanvas
-              ref={sigCanvas}
-              penColor={penColor}
-              canvasProps={{
-                height,
-                width: '100%',
-                className: 'signature-canvas',
-                style: { 
-                  width: '100%', 
-                  height: '100%',
-                  backgroundColor: disabled ? '#f3f4f6' : 'white'
-                }
-              }}
-              backgroundColor={disabled ? '#f3f4f6' : 'white'}
-              clearOnResize={false}
-              dotSize={1}
-              minWidth={1}
-              maxWidth={2.5}
-              velocityFilterWeight={0.7}
+    <div className={cn("space-y-2", className)}>
+      <div 
+        className={cn(
+          "border rounded-md overflow-hidden bg-white", 
+          disabled ? "opacity-50 cursor-not-allowed" : "cursor-crosshair"
+        )}
+        style={{ height: `${height}px`, width }}
+      >
+        {!isSigning && value ? (
+          <div className="relative h-full w-full">
+            <img 
+              src={value} 
+              alt="Firma" 
+              className="h-full w-full object-contain" 
+              onClick={() => !disabled && setIsSigning(true)}
             />
+            {!disabled && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 hover:opacity-100 transition-opacity">
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={() => setIsSigning(true)}
+                >
+                  Editar Firma
+                </Button>
+              </div>
+            )}
           </div>
-          <div className="flex justify-end gap-2 p-2 border-t bg-muted">
+        ) : (
+          <SignatureCanvas
+            ref={signatureRef}
+            penColor={penColor}
+            canvasProps={{
+              className: cn(
+                "w-full h-full",
+                disabled ? "cursor-not-allowed" : "cursor-crosshair"
+              ),
+              style: { width: '100%', height: '100%' }
+            }}
+            onBegin={handleBegin}
+            onEnd={handleEnd}
+            backgroundColor="white"
+            clearOnResize={false}
+            disabled={disabled}
+          />
+        )}
+        
+        {isEmpty && !value && !isSigning && (
+          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground pointer-events-none">
+            {placeholder}
+          </div>
+        )}
+      </div>
+      
+      {!disabled && isSigning && (
+        <div className="flex justify-between">
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm" 
+            onClick={handleClear}
+            disabled={isEmpty}
+          >
+            {clearButtonLabel}
+          </Button>
+          <div className="space-x-2">
             <Button 
               type="button" 
               variant="outline" 
               size="sm" 
-              onClick={clear}
-              disabled={disabled}
-            >
-              {clearButtonLabel}
-            </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="sm" 
-              onClick={cancel}
-              disabled={disabled}
+              onClick={handleCancel}
             >
               {cancelButtonLabel}
             </Button>
             <Button 
               type="button" 
               size="sm" 
-              onClick={save}
-              disabled={disabled || (sigCanvas.current?.isEmpty() ?? true)}
+              onClick={handleSave}
+              disabled={isEmpty}
             >
               {saveButtonLabel}
             </Button>
           </div>
-        </>
-      ) : (
-        <div 
-          className="flex items-center justify-center cursor-pointer"
-          style={{ height: `${height}px`, width }}
-          onClick={startEditing}
-        >
-          {value || tempSignature ? (
-            <img 
-              src={value || tempSignature || ''} 
-              alt="Firma" 
-              className="max-h-full max-w-full"
-            />
-          ) : (
-            <div className="text-muted-foreground text-sm">{placeholder}</div>
+        </div>
+      )}
+      
+      {!disabled && !isSigning && (
+        <div className="flex justify-end">
+          {value && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={handleClear}
+            >
+              {clearButtonLabel}
+            </Button>
           )}
         </div>
       )}
