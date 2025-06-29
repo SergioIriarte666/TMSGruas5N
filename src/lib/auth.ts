@@ -137,4 +137,30 @@ export class AuthService {
 
     return false;
   }
+
+  static async register(userData: Omit<User, 'id' | 'created_at' | 'updated_at'>): Promise<User> {
+    // Simular registro
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Verificar si el email ya existe
+    if (MOCK_USERS.some(u => u.email === userData.email)) {
+      throw new Error('El email ya está registrado');
+    }
+    
+    // Crear nuevo usuario
+    const newUser: User = {
+      id: `${MOCK_USERS.length + 1}`,
+      ...userData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    // En un caso real, aquí se guardaría el usuario en la base de datos
+    // Por ahora, simulamos un login exitoso
+    const token = `mock_token_${newUser.id}_${Date.now()}`;
+    localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(newUser));
+    
+    return newUser;
+  }
 }
