@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { useAuth } from '@/hooks/useAuth';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from 'sonner';
 
 export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

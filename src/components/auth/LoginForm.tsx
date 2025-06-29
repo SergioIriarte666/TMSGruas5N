@@ -82,6 +82,7 @@ export function LoginForm() {
                 placeholder="usuario@tmsgruas.com"
                 {...register('email')}
                 disabled={isSubmitting || isLoading}
+                autoComplete="email"
               />
               {errors.email && (
                 <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -95,6 +96,7 @@ export function LoginForm() {
                 type="password"
                 {...register('password')}
                 disabled={isSubmitting || isLoading}
+                autoComplete="current-password"
               />
               {errors.password && (
                 <p className="text-sm text-destructive">{errors.password.message}</p>
