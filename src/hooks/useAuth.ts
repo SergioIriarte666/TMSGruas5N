@@ -1,49 +1,23 @@
 import { useState, useEffect } from 'react';
-import { User } from '@/types';
 import { AuthService } from '@/lib/auth';
+import { User } from '@/types';
 import { toast } from 'sonner';
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  name: string;
-  role: 'admin' | 'manager' | 'operator' | 'viewer' | 'client';
-  phone?: string;
-  avatar_url?: string;
-  created_at: string;
-  updated_at: string;
-}
+export interface AuthUser extends User {}
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Inicializar al montar el componente
+  // Inicializar al cargar el componente
   useEffect(() => {
-    const initialize = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        // Obtener el usuario actual del localStorage
-        const currentUser = AuthService.getCurrentUser();
-        setUser(currentUser);
-      } catch (err) {
-        console.error('Error initializing auth:', err);
-        setError('Error al inicializar la autenticación');
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Inicializar
-    initialize();
+    const currentUser = AuthService.getCurrentUser();
+    setUser(currentUser);
+    setIsLoading(false);
   }, []);
 
-  // Función para iniciar sesión
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<AuthUser> => {
     setIsLoading(true);
     setError(null);
     
@@ -52,7 +26,6 @@ export function useAuth() {
       setUser(user);
       return user;
     } catch (err: any) {
-      console.error('Error logging in:', err);
       setError(err.message || 'Error al iniciar sesión');
       toast.error(err.message || 'Error al iniciar sesión');
       throw err;
@@ -61,16 +34,12 @@ export function useAuth() {
     }
   };
 
-  // Función para cerrar sesión
   const logout = async () => {
     setIsLoading(true);
-    setError(null);
-    
     try {
       await AuthService.logout();
       setUser(null);
     } catch (err: any) {
-      console.error('Error logging out:', err);
       setError(err.message || 'Error al cerrar sesión');
       toast.error(err.message || 'Error al cerrar sesión');
     } finally {
@@ -85,7 +54,7 @@ export function useAuth() {
     login,
     logout,
     isAuthenticated: !!user,
-    hasRole: (role: string) => AuthService.hasRole(role),
+    hasRole: (role: string) => AuthService.hasRole(role as User['role']),
     canAccess: (resource: string, action: string) => AuthService.canAccess(resource, action)
   };
 }
