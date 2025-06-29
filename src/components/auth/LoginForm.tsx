@@ -114,6 +114,13 @@ export function LoginForm() {
               Iniciar Sesión
             </Button>
 
+            <div className="text-center text-sm mt-4">
+              <span className="text-muted-foreground">¿No tienes una cuenta? </span>
+              <Link to="/register" className="text-primary hover:underline">
+                Regístrate
+              </Link>
+            </div>
+
             <div className="mt-6 p-4 bg-muted rounded-lg">
               <p className="text-xs text-muted-foreground mb-2">Usuarios de prueba:</p>
               <div className="space-y-1 text-xs">
