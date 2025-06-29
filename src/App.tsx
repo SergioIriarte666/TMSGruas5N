@@ -6,7 +6,6 @@ import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
 import { Layout } from '@/components/layout/Layout';
 import { LoginForm } from '@/components/auth/LoginForm';
-import { RegisterForm } from '@/components/auth/RegisterForm';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Dashboard } from '@/pages/Dashboard';
 import { Services } from '@/pages/Services';
@@ -37,7 +36,6 @@ function AppContent() {
     return (
       <Routes>
         <Route path="/login" element={<LoginForm />} />
-        <Route path="/register" element={<RegisterForm />} />
         <Route path="/portal-cliente" element={<Navigate to="/login" replace />} />
         <Route path="/portal-operador" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
@@ -50,7 +48,6 @@ function AppContent() {
     return (
       <Routes>
         <Route path="/login" element={<Navigate to="/portal-cliente" replace />} />
-        <Route path="/register" element={<Navigate to="/portal-cliente" replace />} />
         <Route path="/portal-cliente" element={<ClientPortal />} />
         <Route path="*" element={<Navigate to="/portal-cliente" replace />} />
       </Routes>
@@ -62,7 +59,6 @@ function AppContent() {
     return (
       <Routes>
         <Route path="/login" element={<Navigate to="/portal-operador" replace />} />
-        <Route path="/register" element={<Navigate to="/" replace />} />
         <Route path="/portal-operador" element={<OperatorPortal />} />
         <Route path="*" element={<Navigate to="/portal-operador" replace />} />
       </Routes>
@@ -72,7 +68,6 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/login" element={<Navigate to="/" replace />} />
-      <Route path="/register" element={<Navigate to="/" replace />} />
       <Route path="/portal-cliente" element={<Navigate to="/" replace />} />
       <Route path="/portal-operador" element={<Navigate to="/" replace />} />
       <Route path="/" element={<Layout />}>

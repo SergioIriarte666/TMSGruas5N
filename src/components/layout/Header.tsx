@@ -15,6 +15,7 @@ import { ExpiryAlert, generateAllAlerts } from '@/lib/expiry-alerts';
 import { MOCK_OPERATORS, MOCK_TOW_TRUCKS } from '@/data/mockData';
 import { MOCK_CALENDAR_EVENTS } from '@/data/mockCalendarData';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 // Mock invoices para las alertas
 const MOCK_INVOICES = [
@@ -44,6 +45,7 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [alerts, setAlerts] = useState<ExpiryAlert[]>([]);
   const [alertDetailsOpen, setAlertDetailsOpen] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState<ExpiryAlert | null>(null);
@@ -62,6 +64,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   const handleLogout = async () => {
     try {
       await logout();
+      navigate('/login');
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -162,18 +165,18 @@ export function Header({ onMenuClick }: HeaderProps) {
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-fit flex flex-row flex-wrap gap-2 p-2 z-[9999]">
-            <DropdownMenuItem className="w-fit flex items-center gap-2">
+          <DropdownMenuContent align="end" className="w-fit flex flex-col gap-1 p-2 z-[9999]">
+            <DropdownMenuItem className="w-full flex items-center gap-2">
               <User className="w-4 h-4" />
               Mi Perfil
             </DropdownMenuItem>
-            <DropdownMenuItem className="w-fit flex items-center gap-2">
+            <DropdownMenuItem className="w-full flex items-center gap-2">
               <Settings className="w-4 h-4" />
               Configuración
             </DropdownMenuItem>
             <DropdownMenuSeparator className="w-full" />
             <DropdownMenuItem 
-              className="w-fit flex items-center gap-2 text-destructive"
+              className="w-full flex items-center gap-2 text-destructive"
               onClick={handleLogout}
             >
               <LogOut className="w-4 h-4" />

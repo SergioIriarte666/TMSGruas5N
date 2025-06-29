@@ -39,6 +39,7 @@ export function useAuth() {
     try {
       await AuthService.logout();
       setUser(null);
+      toast.success('Sesión cerrada correctamente');
     } catch (err: any) {
       setError(err.message || 'Error al cerrar sesión');
       toast.error(err.message || 'Error al cerrar sesión');
