@@ -1,4 +1,5 @@
 import { User } from '@/types';
+import { v4 as uuidv4 } from 'uuid';
 
 // Mock authentication - replace with real auth service
 const MOCK_USERS: User[] = [
@@ -138,5 +139,94 @@ export class AuthService {
     }
 
     return false;
+  }
+
+  // Método para registrar un nuevo usuario (simulado)
+  static async register(userData: Omit<User, 'id' | 'created_at' | 'updated_at'>): Promise<User> {
+    // Simular llamada a API
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Verificar si el email ya existe
+    if (MOCK_USERS.some(u => u.email === userData.email)) {
+      throw new Error('El email ya está registrado');
+    }
+    
+    // Crear nuevo usuario
+    const newUser: User = {
+      id: uuidv4(),
+      ...userData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    // En un caso real, aquí se guardaría el usuario en la base de datos
+    // Para esta simulación, lo agregamos al array de usuarios
+    MOCK_USERS.push(newUser);
+    
+    // Iniciar sesión automáticamente
+    const token = `mock_token_${newUser.id}_${Date.now()}`;
+    localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(newUser));
+    
+    return newUser;
+  }
+
+  // Método para actualizar datos del usuario
+  static async updateUserProfile(userId: string, userData: Partial<User>): Promise<User> {
+    // Simular llamada a API
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    const userIndex = MOCK_USERS.findIndex(u => u.id === userId);
+    if (userIndex === -1) {
+      throw new Error('Usuario no encontrado');
+    }
+    
+    // Actualizar usuario
+    const updatedUser = {
+      ...MOCK_USERS[userIndex],
+      ...userData,
+      updated_at: new Date().toISOString()
+    };
+    
+    // En un caso real, aquí se actualizaría el usuario en la base de datos
+    MOCK_USERS[userIndex] = updatedUser;
+    
+    // Actualizar en localStorage si es el usuario actual
+    const currentUser = this.getCurrentUser();
+    if (currentUser && currentUser.id === userId) {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser));
+    }
+    
+    return updatedUser;
+  }
+
+  // Método para cambiar contraseña (simulado)
+  static async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<boolean> {
+    // Simular llamada a API
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Verificar contraseña actual (en este caso simulado siempre es 'password123')
+    if (currentPassword !== 'password123') {
+      throw new Error('La contraseña actual es incorrecta');
+    }
+    
+    // En un caso real, aquí se actualizaría la contraseña en la base de datos
+    // Para esta simulación, simplemente retornamos éxito
+    return true;
+  }
+
+  // Método para solicitar restablecimiento de contraseña (simulado)
+  static async requestPasswordReset(email: string): Promise<boolean> {
+    // Simular llamada a API
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    const user = MOCK_USERS.find(u => u.email === email);
+    if (!user) {
+      throw new Error('No existe un usuario con ese email');
+    }
+    
+    // En un caso real, aquí se enviaría un email con un enlace para restablecer la contraseña
+    // Para esta simulación, simplemente retornamos éxito
+    return true;
   }
 }
