@@ -1,4 +1,5 @@
 import { User } from '@/types';
+import { v4 as uuidv4 } from 'uuid';
 
 // Mock authentication - replace with real auth service
 const MOCK_USERS: User[] = [
@@ -149,7 +150,7 @@ export class AuthService {
     
     // Crear nuevo usuario
     const newUser: User = {
-      id: `${MOCK_USERS.length + 1}`,
+      id: uuidv4(),
       ...userData,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
