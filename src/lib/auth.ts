@@ -54,12 +54,10 @@ export class AuthService {
   private static readonly USER_KEY = 'tms_user';
 
   static async login(email: string, password: string): Promise<User> {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    // Simplificado: cualquier contraseña funciona para facilitar pruebas
     const user = MOCK_USERS.find(u => u.email === email);
-    if (!user || password !== 'password123') {
-      throw new Error('Credenciales inválidas');
+    if (!user) {
+      throw new Error('Usuario no encontrado');
     }
 
     const token = `mock_token_${user.id}_${Date.now()}`;

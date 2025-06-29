@@ -1,43 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
-import { Menu, LogOut, User, Settings } from 'lucide-react';
-import { AlertsDropdown } from '@/components/layout/AlertsDropdown';
-import { ExpiryAlert, generateAllAlerts } from '@/lib/expiry-alerts';
-import { MOCK_OPERATORS, MOCK_TOW_TRUCKS } from '@/data/mockData';
-import { MOCK_CALENDAR_EVENTS } from '@/data/mockCalendarData';
-import { toast } from 'sonner';
+import { Bell, LogOut, User, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-// Mock invoices para las alertas
-const MOCK_INVOICES = [
-  {
-    id: '1',
-    invoice_number: 'F001-00000001',
-    due_date: '2024-07-15',
-    status: 'issued'
-  },
-  {
-    id: '2',
-    invoice_number: 'F001-00000002',
-    due_date: '2024-07-05',
-    status: 'issued'
-  },
-  {
-    id: '3',
-    invoice_number: 'F001-00000003',
-    due_date: '2024-06-30',
-    status: 'issued'
-  }
-];
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -46,20 +24,6 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [alerts, setAlerts] = useState<ExpiryAlert[]>([]);
-  const [alertDetailsOpen, setAlertDetailsOpen] = useState(false);
-  const [selectedAlert, setSelectedAlert] = useState<ExpiryAlert | null>(null);
-
-  // Generar alertas al cargar el componente
-  useEffect(() => {
-    const allAlerts = generateAllAlerts(
-      MOCK_OPERATORS,
-      MOCK_TOW_TRUCKS,
-      MOCK_INVOICES,
-      MOCK_CALENDAR_EVENTS
-    );
-    setAlerts(allAlerts);
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -67,50 +31,6 @@ export function Header({ onMenuClick }: HeaderProps) {
       navigate('/login');
     } catch (error) {
       console.error('Error logging out:', error);
-    }
-  };
-
-  const handleMarkAsRead = (alertId: string) => {
-    setAlerts(prevAlerts => 
-      prevAlerts.map(alert => 
-        alert.id === alertId ? { ...alert, read: true } : alert
-      )
-    );
-  };
-
-  const handleMarkAllAsRead = () => {
-    setAlerts(prevAlerts => 
-      prevAlerts.map(alert => ({ ...alert, read: true }))
-    );
-  };
-
-  const handleViewAlertDetails = (alert: ExpiryAlert) => {
-    setSelectedAlert(alert);
-    
-    // Aquí se podría abrir un modal con detalles o navegar a la página correspondiente
-    // Por ahora, solo mostramos un toast
-    toast.info(`Viendo detalles de: ${alert.message} - ${alert.entityName}`);
-    
-    // Dependiendo del tipo de entidad, podríamos navegar a diferentes páginas
-    switch (alert.entityType) {
-      case 'operator':
-        // Navegar a la página de operadores o mostrar detalles del operador
-        console.log('Navegar a detalles del operador', alert.entityId);
-        break;
-      case 'tow_truck':
-        // Navegar a la página de grúas o mostrar detalles de la grúa
-        console.log('Navegar a detalles de la grúa', alert.entityId);
-        break;
-      case 'invoice':
-        // Navegar a la página de facturas o mostrar detalles de la factura
-        console.log('Navegar a detalles de la factura', alert.entityId);
-        break;
-      case 'calendar':
-        // Navegar a la página de calendario o mostrar detalles del evento
-        console.log('Navegar a detalles del evento', alert.entityId);
-        break;
-      default:
-        break;
     }
   };
 
@@ -142,14 +62,6 @@ export function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Alertas */}
-        <AlertsDropdown 
-          alerts={alerts}
-          onMarkAsRead={handleMarkAsRead}
-          onMarkAllAsRead={handleMarkAllAsRead}
-          onViewDetails={handleViewAlertDetails}
-        />
-
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -186,5 +98,25 @@ export function Header({ onMenuClick }: HeaderProps) {
         </DropdownMenu>
       </div>
     </header>
+  );
+}
+
+// Componente Menu interno para no tener que importar
+function Menu({ className }: { className?: string }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+    >
+      <line x1="4" x2="20" y1="12" y2="12" />
+      <line x1="4" x2="20" y1="6" y2="6" />
+      <line x1="4" x2="20" y1="18" y2="18" />
+    </svg>
   );
 }
