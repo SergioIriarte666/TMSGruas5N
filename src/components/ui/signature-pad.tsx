@@ -1,8 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Eraser, Check, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface SignaturePadProps {
   value: string;
@@ -15,6 +14,7 @@ interface SignaturePadProps {
   saveButtonLabel?: string;
   cancelButtonLabel?: string;
   penColor?: string;
+  className?: string;
 }
 
 export function SignaturePad({
@@ -27,165 +27,134 @@ export function SignaturePad({
   clearButtonLabel = 'Limpiar',
   saveButtonLabel = 'Guardar',
   cancelButtonLabel = 'Cancelar',
-  penColor = 'black'
+  penColor = 'black',
+  className
 }: SignaturePadProps) {
-  const signatureRef = useRef<SignatureCanvas>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(true);
+  const sigCanvas = useRef<SignatureCanvas>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [isSigning, setIsSigning] = useState(false);
 
-  // Cargar firma existente
-  useEffect(() => {
-    if (value && signatureRef.current && !isEditing) {
-      signatureRef.current.fromDataURL(value);
-      setIsEmpty(false);
-    }
-  }, [value, isEditing]);
-
-  const handleClear = () => {
-    if (signatureRef.current) {
-      signatureRef.current.clear();
-      setIsEmpty(true);
+  const clear = () => {
+    if (sigCanvas.current) {
+      sigCanvas.current.clear();
+      onChange('');
     }
   };
 
-  const handleSave = () => {
-    if (signatureRef.current) {
-      if (signatureRef.current.isEmpty()) {
-        setIsEmpty(true);
-        return;
-      }
-      
-      const dataUrl = signatureRef.current.toDataURL('image/png');
+  const save = () => {
+    if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
+      const dataUrl = sigCanvas.current.toDataURL('image/png');
       onChange(dataUrl);
-      setIsEditing(false);
-      setIsEmpty(false);
+      setIsSigning(false);
     }
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    if (signatureRef.current && value) {
-      signatureRef.current.fromDataURL(value);
-      setIsEmpty(false);
-    } else {
-      handleClear();
-    }
+  const cancel = () => {
+    setIsSigning(false);
   };
 
-  const handleBegin = () => {
-    setIsEmpty(false);
-  };
-
-  const startEditing = () => {
-    if (!disabled) {
-      setIsEditing(true);
-      if (signatureRef.current) {
-        signatureRef.current.clear();
-        setIsEmpty(true);
-      }
+  const startSigning = () => {
+    setIsSigning(true);
+    // Limpiar la firma existente si hay una
+    if (sigCanvas.current) {
+      sigCanvas.current.clear();
     }
   };
 
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-0">
-        <div 
-          className={`relative ${disabled && !value ? 'opacity-50' : ''}`}
-          style={{ height: `${height}px` }}
-        >
-          {!isEditing && value && !isEmpty ? (
-            // Mostrar firma guardada
-            <div 
-              className="w-full h-full flex items-center justify-center cursor-pointer"
-              onClick={startEditing}
-              style={{ backgroundColor: '#f9fafb' }}
+    <div className={cn("space-y-2", className)}>
+      {isSigning ? (
+        <>
+          <div 
+            className="border rounded-md overflow-hidden bg-white"
+            style={{ height: `${height}px`, width }}
+          >
+            <SignatureCanvas
+              ref={sigCanvas}
+              penColor={penColor}
+              canvasProps={{
+                width: '100%',
+                height: height,
+                className: 'signature-canvas',
+                style: { width: '100%', height: '100%' }
+              }}
+              onBegin={() => setIsDrawing(true)}
+              onEnd={() => setIsDrawing(false)}
+              backgroundColor="white"
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={clear}
+              disabled={disabled}
             >
-              <img 
-                src={value} 
-                alt="Firma" 
-                className="max-h-full max-w-full object-contain"
-              />
-            </div>
-          ) : (
-            // Mostrar canvas de firma
-            <div className="w-full h-full">
-              <SignatureCanvas
-                ref={signatureRef}
-                penColor={penColor}
-                canvasProps={{
-                  width: '100%',
-                  height: height,
-                  className: 'signature-canvas',
-                  style: { 
-                    width: '100%', 
-                    height: '100%',
-                    backgroundColor: '#f9fafb',
-                    cursor: disabled ? 'not-allowed' : 'crosshair'
-                  }
-                }}
-                onBegin={handleBegin}
-                clearOnResize={false}
-              />
-              
-              {/* Placeholder */}
-              {isEmpty && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-gray-400">
-                  {placeholder}
-                </div>
-              )}
-            </div>
-          )}
-          
-          {/* Botones de acción */}
-          {isEditing && (
-            <div className="absolute bottom-2 right-2 flex gap-2">
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                onClick={handleClear}
-                className="bg-white"
-              >
-                <Eraser className="w-4 h-4 mr-1" />
-                {clearButtonLabel}
-              </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                onClick={handleCancel}
-                className="bg-white"
-              >
-                <X className="w-4 h-4 mr-1" />
-                {cancelButtonLabel}
-              </Button>
-              <Button 
-                type="button" 
-                size="sm"
-                onClick={handleSave}
-                className="bg-primary text-primary-foreground"
-              >
-                <Check className="w-4 h-4 mr-1" />
-                {saveButtonLabel}
-              </Button>
-            </div>
-          )}
-          
-          {/* Botón para iniciar edición */}
-          {!isEditing && !disabled && (
-            <div className="absolute bottom-2 right-2">
-              <Button 
-                type="button" 
-                size="sm"
-                onClick={startEditing}
-                className="bg-primary text-primary-foreground"
-              >
-                {value && !isEmpty ? 'Cambiar Firma' : 'Firmar'}
-              </Button>
-            </div>
+              {clearButtonLabel}
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={cancel}
+              disabled={disabled}
+            >
+              {cancelButtonLabel}
+            </Button>
+            <Button 
+              type="button" 
+              size="sm" 
+              onClick={save}
+              disabled={disabled || !isDrawing}
+            >
+              {saveButtonLabel}
+            </Button>
+          </div>
+        </>
+      ) : value ? (
+        <div className="relative">
+          <div 
+            className="border rounded-md overflow-hidden bg-white flex items-center justify-center"
+            style={{ height: `${height}px`, width }}
+          >
+            <img 
+              src={value} 
+              alt="Firma" 
+              className="max-h-full max-w-full object-contain"
+            />
+          </div>
+          {!disabled && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              className="absolute top-2 right-2"
+              onClick={startSigning}
+            >
+              Cambiar
+            </Button>
           )}
         </div>
-      </CardContent>
-    </Card>
+      ) : (
+        <div 
+          className="border border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
+          style={{ height: `${height}px`, width }}
+          onClick={disabled ? undefined : startSigning}
+        >
+          <p className="text-muted-foreground text-sm">{placeholder}</p>
+          {!disabled && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              className="mt-2"
+            >
+              Firmar
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { useAuth } from '@/hooks/useAuth';
+import { Toaster } from '@/components/ui/sonner';
 
 export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirigir al login si no está autenticado
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="flex h-screen bg-background">
@@ -20,6 +31,8 @@ export function Layout() {
           <Outlet />
         </main>
       </div>
+      
+      <Toaster position="top-right" />
     </div>
   );
 }

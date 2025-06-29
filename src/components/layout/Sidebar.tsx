@@ -1,7 +1,8 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   Users,
@@ -13,7 +14,8 @@ import {
   UserCheck,
   MapPin,
   Receipt,
-  Calendar
+  Calendar,
+  LogOut
 } from 'lucide-react';
 
 const navigation = [
@@ -86,11 +88,21 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const filteredNavigation = navigation.filter(item => 
     item.roles.includes(user?.role || 'viewer')
   );
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   return (
     <>
@@ -144,9 +156,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             })}
           </nav>
 
-          {/* User info */}
+          {/* User info and logout */}
           <div className="p-4 border-t border-border">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-4">
               <div className="flex items-center justify-center w-10 h-10 bg-muted rounded-full">
                 <span className="text-sm font-medium text-muted-foreground">
                   {user?.name.split(' ').map(n => n[0]).join('').toUpperCase()}
@@ -161,6 +173,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </p>
               </div>
             </div>
+            
+            <Button 
+              variant="outline" 
+              className="w-full flex items-center gap-2 justify-start"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4" />
+              Cerrar Sesión
+            </Button>
           </div>
         </div>
       </div>

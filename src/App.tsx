@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
 import { Layout } from '@/components/layout/Layout';
 import { LoginForm } from '@/components/auth/LoginForm';
+import { RegisterForm } from '@/components/auth/RegisterForm';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Dashboard } from '@/pages/Dashboard';
 import { Services } from '@/pages/Services';
@@ -36,6 +37,7 @@ function AppContent() {
     return (
       <Routes>
         <Route path="/login" element={<LoginForm />} />
+        <Route path="/register" element={<RegisterForm />} />
         <Route path="/portal-cliente" element={<Navigate to="/login" replace />} />
         <Route path="/portal-operador" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
